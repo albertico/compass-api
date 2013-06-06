@@ -1,0 +1,9 @@
+---
+- :resource: myapi
+  :table_name: myapi_table
+  :geometry_column: geom
+  :columns:
+  - :field_id
+  - :field_id_description
+  - :field2
+  - :field3

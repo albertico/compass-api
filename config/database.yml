@@ -1,0 +1,9 @@
+development:
+  adapter: postgis
+  postgis_extension: true
+  schema_search_path: public
+  pool: 10
+  host: localhost
+  database: compass_db    # substitute your dev database name
+  username: compass_user  # substitute the username your app will use to connect
+  password: compass_user  # substitute the user's password
