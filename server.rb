@@ -10,6 +10,7 @@ require 'rgeo-geojson'
 require 'yaml'
 require 'erb'
 require File.expand_path(File.join(File.dirname(__FILE__), '.', 'config', 'application'))
+require File.expand_path(File.join(File.dirname(__FILE__), '.', 'app', 'rack'))
 require File.expand_path(File.join(File.dirname(__FILE__), '.', 'app', 'model'))
 require File.expand_path(File.join(File.dirname(__FILE__), '.', 'app', 'api'))
 

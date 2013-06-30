@@ -19,5 +19,5 @@ Alberto A. Colon Viera
 
 **Contact me:**
 
-- [Twitter](http://twitter.com/#siloraptor)
+- [Twitter](http://twitter.com/alberti_co)
 - [Email](mailto://aacv@alberti.co) or [Gmail](mailto://alberto.a.colon.viera@gmail.com)

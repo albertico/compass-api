@@ -29,44 +29,48 @@ module Compass
     end
 
     class Factory
-      def self.create_api(api_resources, api_version)
-        api_resources.each do |r|
-          Compass::Model::Manager.create_model(r[:resource], r[:table_name], r[:geometry_column], r[:columns])
+      def self.create_api(api_config, api_version)
+        api_config.each do |api|
+          Compass::Model::Manager.create_model(api[:resource], api[:table_name], api[:geometry_column], api[:columns])
         end
         klass = Class.new(Grape::API) do
+          use Goliath::Rack::Params
+          use Goliath::Rack::JSONP
+          use Compass::Rack::CORS
+          
           prefix 'compass'
           version api_version, using: :param, parameter: 'v'
           format :json
 
-          api_resources.each do |r|
-            resource r[:resource] do
-              params do
+          api_config.each do |api|
+            resource api[:resource] do
+              # Define parameters on single block.
+              api_parameters = Proc.new do
                 optional :lnglat, type: String, lng_lat: true, desc: "Longitude and Latitude"
                 optional :latlng, type: String, lat_lng: true, desc: "Latitude and Longitude"
                 optional :dist, type: String, distance: true, desc: "Distance ratio"
+                optional :callback, type: String, desc: "JSONP callback"
               end
+
+              params(&api_parameters)
               get '/' do
                 throw :error, status: 400, message: "must specify 'lnglat' or 'latlng' parameter" unless params[:lnglat] or params[:latlng]
                 lnglat = params[:lnglat] ? params[:lnglat].split(',') : params[:latlng].split(',').reverse!
                 d = (params[:dist] || 1).to_f
-                m = Compass::Model::Manager.model(r[:resource]).klass
-                g = Compass::Model::Manager.model(r[:resource]).geometry_column
-                c = Compass::Model::Manager.model(r[:resource]).columns
+                m = Compass::Model::Manager.model(api[:resource]).klass
+                g = Compass::Model::Manager.model(api[:resource]).geometry_column
+                c = Compass::Model::Manager.model(api[:resource]).columns
                 Compass::Model::Helper.recordset_as_list(m.select_geometries_on_ratio_distance(lnglat[0], lnglat[1], g, d, :miles, c), g)
               end
 
-              params do
-                optional :lnglat, type: String, lng_lat: true, desc: "Longitude and Latitude"
-                optional :latlng, type: String, lat_lng: true, desc: "Latitude and Longitude"
-                optional :dist, type: String, distance: true, desc: "Distance ratio"
-              end
-              get '/location' do
+              params(&api_parameters)
+              get '/feature' do
                 throw :error, status: 400, message: "must specify 'lnglat' or 'latlng' parameter" unless params[:lnglat] or params[:latlng]
                 lnglat = params[:lnglat] ? params[:lnglat].split(',') : params[:latlng].split(',').reverse!
                 d = (params[:dist] || 1).to_f
-                m = Compass::Model::Manager.model(r[:resource]).klass
-                g = Compass::Model::Manager.model(r[:resource]).geometry_column
-                c = Compass::Model::Manager.model(r[:resource]).columns
+                m = Compass::Model::Manager.model(api[:resource]).klass
+                g = Compass::Model::Manager.model(api[:resource]).geometry_column
+                c = Compass::Model::Manager.model(api[:resource]).columns
                 Compass::Model::Helper.recordset_as_feature_hash(m.select_geometries_on_ratio_distance(lnglat[0], lnglat[1], g, d, :miles, c), g)
               end
             end
