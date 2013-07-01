@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link href='https://fonts.googleapis.com/css?family=Architects+Daughter' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print" />
+
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <title>Compass-API by albertico</title>
+  </head>
+
+  <body>
+    <header>
+      <div class="inner">
+        <h1>Compass-API</h1>
+        <h2>Giving context to geospatial data</h2>
+        <a href="https://github.com/albertico/compass-api" class="button"><small>View project on</small>GitHub</a>
+      </div>
+    </header>
+
+    <div id="content-wrapper">
+      <div class="inner clearfix">
+        <section id="main-content">
+          <h2>
+<a name="meet-compass-api" class="anchor" href="#meet-compass-api"><span class="octicon octicon-link"></span></a>Meet Compass-API</h2>
+
+<p>Compass-API is a framework that allows to create a RESTful API service for publishing geospatial data (point geometries) without programming.  The API returns the geometries contained on a ratio distance from the specified location coordinate.  Data is returned in JSON format.  Compass-API has the functionality for returning features using the GeoJSON specificationn for easy integration and rendering with multiple map libraries.</p>
+
+<p>This project was developed for the <a href="http://techsummitpr.com">TechSummitPR</a> as part of the <a href="http://hackforchange.org">National Day of Civic Hacking 2013</a>.</p>
+
+<h2>
+<a name="requirements-and-installation" class="anchor" href="#requirements-and-installation"><span class="octicon octicon-link"></span></a>Requirements and Installation</h2>
+
+<p>Compass-API requires:</p>
+
+<ul>
+<li>PostgreSQL 1.9</li>
+<li>PostGIS 2.0+</li>
+<li>Ruby 1.9.3</li>
+</ul><p>PostgreSQL with the PostGIS extensions must be installed and enabled on your database.</p>
+
+<p>Compass-API can be installed by simply downloading or cloning this repository and executing <code>bundle setup</code>.</p>
+
+<p>Database connection parameters are defined on the <code>config/database.yml</code> file.</p>
+
+<h2>
+<a name="how-does-it-work" class="anchor" href="#how-does-it-work"><span class="octicon octicon-link"></span></a>How does it work?</h2>
+
+<p>An API is built in three single steps:</p>
+
+<h3>
+<a name="1-import-your-shapefiles" class="anchor" href="#1-import-your-shapefiles"><span class="octicon octicon-link"></span></a>1. Import your Shapefiles</h3>
+
+<p>Once your PostgreSQL and PostGIS are configured and enabled, a shapefile can be imported using the <code>shp2psql</code> command line tool:</p>
+
+<pre><code>$ shp2psql -s 4326 myshapefile.shp table_name
+</code></pre>
+
+<p>Projection must be specified using the <code>-s SRID</code> parameter and it can handle reprojection by specifying the current and the desired projections: <code>-s SRID:NEW_SRID</code>.</p>
+
+<pre><code>$ shp2psql -s 2866:4326 myshapefile.shp table_name
+</code></pre>
+
+<p><strong>Layers must be defined using the WGS84 projection (EPSG:4326)</strong></p>
+
+<p>Encoding can be specified using the <code>-W</code> parameter.</p>
+
+<p><strong>Note: Compass-API only works with POINT geometries.</strong></p>
+
+<h3>
+<a name="2-define-your-api-using-yaml" class="anchor" href="#2-define-your-api-using-yaml"><span class="octicon octicon-link"></span></a>2. Define your API using YAML</h3>
+
+<p>API resources are defined on a YAML file without having to do any programming.  You must edit the <code>config/api.yml</code> file like this:</p>
+
+<pre><code>---
+- :resource: hydrant
+  :table_name: hydrant
+  :geometry_column: geom
+  :columns:
+  - :facilityid
+  - :owner
+  - :watertype
+</code></pre>
+
+<p><code>:resource</code> - Defines the URL resource name.</p>
+
+<p><code>:table_name</code> - Specifies the database table for your resource.</p>
+
+<p><code>:geometry_column</code> - Specifies the geometry column <em>(Projection must be WGS84)</em></p>
+
+<p><code>:columns</code> - List of table columns that will be included as attributes for each geometry.</p>
+
+<h3>
+<a name="3-start-compass-api" class="anchor" href="#3-start-compass-api"><span class="octicon octicon-link"></span></a>3. Start Compass-API</h3>
+
+<p>Execute <code>ruby server.rb -vs</code> on the Compass-API directory.</p>
+
+<h2>
+<a name="api-resource-structure" class="anchor" href="#api-resource-structure"><span class="octicon octicon-link"></span></a>API resource structure</h2>
+
+<p>Resources are defined with the following structure: <code>/compass/[:resource]?lnglat=0.0,0.0</code></p>
+
+<p>The <code>lnglat</code> or <code>latlng</code> parameter must be always specified.</p>
+
+<p>An optional <code>dist</code> parameter is available for specifying the ratio distance in miles.  If not specified, defaults to <code>1</code>.</p>
+
+<p>A <code>feature</code> resource is available for returning data as a GeoJSON <code>FeatureCollection</code>:</p>
+
+<p><code>/compass/[:resource]/feature?lnglat=0.0,0.0</code></p>
+
+<h2>
+<a name="authors-and-contributors" class="anchor" href="#authors-and-contributors"><span class="octicon octicon-link"></span></a>Authors and Contributors</h2>
+
+<p>Developed by Alberto A. Colón Viera (<a href="https://github.com/albertico" class="user-mention">@albertico</a>).</p>
+
+<p>You can contact Alberto on <a href="https://twitter.com/alberti_co">Twitter</a> or via <a href="mailto://aacv@alberti.co">Email</a> / <a href="mailto://alberto.a.colon.viera@gmail.com">GMail</a>.</p>
+
+<h2>
+<a name="license" class="anchor" href="#license"><span class="octicon octicon-link"></span></a>License</h2>
+
+<p>This project is open sourced under <a href="http://www.gnu.org/licenses/gpl-3.0.html">GNU GPL Version 3</a>.</p>
+        </section>
+
+        <aside id="sidebar">
+          <a href="https://github.com/albertico/compass-api/zipball/master" class="button">
+            <small>Download</small>
+            .zip file
+          </a>
+          <a href="https://github.com/albertico/compass-api/tarball/master" class="button">
+            <small>Download</small>
+            .tar.gz file
+          </a>
+
+          <p class="repo-owner"><a href="https://github.com/albertico/compass-api"></a> is maintained by <a href="https://github.com/albertico">albertico</a>.</p>
+
+          <p>This page was generated by <a href="pages.github.com">GitHub Pages</a> using the Architect theme by <a href="https://twitter.com/jasonlong">Jason Long</a>.</p>
+        </aside>
+      </div>
+    </div>
+
+            <script type="text/javascript">
+            var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+            document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+          </script>
+          <script type="text/javascript">
+            try {
+              var pageTracker = _gat._getTracker("UA-42137911-1");
+            pageTracker._trackPageview();
+            } catch(err) {}
+          </script>
+
+  </body>
+</html>
