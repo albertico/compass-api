@@ -31,7 +31,7 @@
           <h2>
 <a name="meet-compass-api" class="anchor" href="#meet-compass-api"><span class="octicon octicon-link"></span></a>Meet Compass-API</h2>
 
-<p>Compass-API is a framework that allows to create a RESTful API service for publishing geospatial data (point geometries) without programming.  The API returns the geometries contained on a ratio distance from the specified location coordinate.  Data is returned in JSON format.  Compass-API has the functionality for returning features using the GeoJSON specificationn for easy integration and rendering with multiple map libraries.</p>
+<p>Compass-API is a framework that allows to create a RESTful API service for publishing geospatial point geometries data without programming.  The API returns the geometries contained on a ratio distance from the specified location coordinate.  Data is returned in JSON format.  Compass-API has the functionality for returning features using the GeoJSON specificationn for easy integration and rendering with multiple map libraries.</p>
 
 <p>This project was developed for the <a href="http://techsummitpr.com">TechSummitPR</a> as part of the <a href="http://hackforchange.org">National Day of Civic Hacking 2013</a>.</p>
 
@@ -46,11 +46,26 @@
 <li>Ruby 1.9.3</li>
 </ul><p>PostgreSQL with the PostGIS extensions must be installed and enabled on your database.</p>
 
-<p>Compass-API can be installed by simply downloading or cloning this repository and executing <code>bundle setup</code>.</p>
-
 <p>Database connection parameters are defined on the <code>config/database.yml</code> file.</p>
 
+<p>Compass-API can be installed by simply downloading or cloning this repository.  Once on the root directory, execute <code>bundle install</code>.</p>
+
 <h2>
+<a name="technology-behind-compass-api" class="anchor" href="#technology-behind-compass-api"><span class="octicon octicon-link"></span></a>Technology behind Compass-API</h2>
+
+<p>Built with Ruby using:</p>
+
+<ul>
+<li>
+<a href="https://github.com/postrank-labs/goliath">Goliath</a> - <em>Non-blocking web server framework</em>
+</li>
+<li>
+<a href="https://github.com/intridea/grape">Grape</a> - <em>Micro-framework for creating REST-like APIs</em>
+</li>
+<li>
+<a href="https://github.com/dazuma/rgeo">RGeo</a> - <em>Geospatial data library</em>
+</li>
+</ul><h2>
 <a name="how-does-it-work" class="anchor" href="#how-does-it-work"><span class="octicon octicon-link"></span></a>How does it work?</h2>
 
 <p>An API is built in three single steps:</p>
@@ -60,15 +75,13 @@
 
 <p>Once your PostgreSQL and PostGIS are configured and enabled, a shapefile can be imported using the <code>shp2psql</code> command line tool:</p>
 
-<pre><code>$ shp2psql -s 4326 myshapefile.shp table_name
-</code></pre>
+<div class="highlight"><pre><span class="nv">$ </span>shp2psql -s 4326 myshapefile.shp table_name
+</pre></div>
 
-<p>Projection must be specified using the <code>-s SRID</code> parameter and it can handle reprojection by specifying the current and the desired projections: <code>-s SRID:NEW_SRID</code>.</p>
+<p>Projection must be specified using the <code>-s SRID</code> parameter.  Compass-API requires all layers to be defined using the WGS84 projection (EPSG:4326).  Reprojection can be handled by <code>shp2pgsql</code> by specifying the current and the desired projections: <code>-s SRID:NEW_SRID</code>.</p>
 
-<pre><code>$ shp2psql -s 2866:4326 myshapefile.shp table_name
-</code></pre>
-
-<p><strong>Layers must be defined using the WGS84 projection (EPSG:4326)</strong></p>
+<div class="highlight"><pre><span class="nv">$ </span>shp2psql -s 2866:4326 myshapefile.shp table_name
+</pre></div>
 
 <p>Encoding can be specified using the <code>-W</code> parameter.</p>
 
@@ -79,15 +92,15 @@
 
 <p>API resources are defined on a YAML file without having to do any programming.  You must edit the <code>config/api.yml</code> file like this:</p>
 
-<pre><code>---
-- :resource: hydrant
-  :table_name: hydrant
-  :geometry_column: geom
-  :columns:
-  - :facilityid
-  - :owner
-  - :watertype
-</code></pre>
+<div class="highlight"><pre><span class="nn">---</span>
+<span class="p-Indicator">-</span> <span class="l-Scalar-Plain">:resource</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">hydrant</span>
+  <span class="l-Scalar-Plain">:table_name</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">hydrant</span>
+  <span class="l-Scalar-Plain">:geometry_column</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">geom</span>
+  <span class="l-Scalar-Plain">:columns</span><span class="p-Indicator">:</span>
+  <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">:facilityid</span>
+  <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">:owner</span>
+  <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">:watertype</span>
+</pre></div>
 
 <p><code>:resource</code> - Defines the URL resource name.</p>
 
